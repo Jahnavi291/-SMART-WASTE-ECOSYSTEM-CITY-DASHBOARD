@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Waste Ecosystem</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0b1220;
+    color: white;
+}
+
+header {
+    background: #1e293b;
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card {
+    background: #111827;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 12px;
+    width: 260px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.status {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 15px;
+    background: #374151;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    width: 0%;
+    transition: 0.8s;
+}
+
+.btns {
+    text-align: center;
+    margin: 20px;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.wet { background: #22c55e; }
+.dry { background: #f59e0b; }
+.plastic { background: #ef4444; }
+
+.dashboard {
+    text-align: center;
+    padding: 10px;
+    font-size: 18px;
+    color: #38bdf8;
+}
+</style>
+</head>
+
+<body>
+
+<header>♻️ SMART WASTE ECOSYSTEM – CITY DASHBOARD</header>
+
+<div class="dashboard">
+Eco Points: <span id="points">0</span> |
+Prediction: <span id="predict">Initializing...</span>
+</div>
+
+<div class="btns">
+<button class="wet" onclick="addWaste('wet')">Wet Waste</button>
+<button class="dry" onclick="addWaste('dry')">Dry Waste</button>
+<button class="plastic" onclick="addWaste('plastic')">Plastic Waste</button>
+</div>
+
+<div class="container">
+
+<div class="card">
+<h3>Bin A</h3>
+<div class="progress"><div class="bar" id="a"></div></div>
+<div class="status" id="sa">Empty</div>
+</div>
+
+<div class="card">
+<h3>Bin B</h3>
+<div class="progress"><div class="bar" id="b"></div></div>
+<div class="status" id="sb">Empty</div>
+</div>
+
+<div class="card">
+<h3>Bin C</h3>
+<div class="progress"><div class="bar" id="c"></div></div>
+<div class="status" id="sc">Empty</div>
+</div>
+
+<div class="card">
+<h3>AI Detection</h3>
+<div id="ai">Waiting...</div>
+</div>
+
+<div class="card">
+<h3>Smart Routing</h3>
+<div id="route">Calculating...</div>
+</div>
+
+</div>
+
+<script>
+
+let bins = {
+    a: 0,
+    b: 0,
+    c: 0
+};
+
+let points = 0;
+let history = [];
+
+function addWaste(type) {
+
+    let target = randomBin();
+    let add = 15 + Math.random()*10;
+
+    bins[target] += add;
+    if(bins[target] > 100) bins[target] = 100;
+
+    history.push(bins[target]);
+
+    updateUI(target, type);
+    calculatePoints(type);
+    predict();
+    route();
+}
+
+function randomBin() {
+    let keys = Object.keys(bins);
+    return keys[Math.floor(Math.random()*keys.length)];
+}
+
+function updateUI(bin, type) {
+
+    document.getElementById(bin).style.width = bins[bin] + "%";
+
+    let status = "Empty";
+    if(bins[bin] > 70) status = "FULL 🔴";
+    else if(bins[bin] > 40) status = "Half 🟡";
+    else status = "Low 🟢";
+
+    document.getElementById("s"+bin).innerText = status;
+
+    document.getElementById("ai").innerText =
+        "Detected: " + type.toUpperCase() + " waste processed";
+}
+
+function calculatePoints(type) {
+    if(type === "dry") points += 10;
+    if(type === "plastic") points += 7;
+    if(type === "wet") points += 5;
+
+    document.getElementById("points").innerText = points;
+}
+
+function predict() {
+    if(history.length < 3) return;
+
+    let trend = history[history.length-1] - history[history.length-3];
+
+    if(trend > 25) {
+        document.getElementById("predict").innerText = "Overflow Soon ⚠️";
+    } else {
+        document.getElementById("predict").innerText = "Normal Flow ✔";
+    }
+}
+
+function route() {
+    let minBin = Object.keys(bins).reduce((a,b) =>
+        bins[a] < bins[b] ? a : b
+    );
+
+    document.getElementById("route").innerText =
+        "Nearest Empty Bin: " + minBin.toUpperCase();
+}
+
+</script>
+
+</body>
+</html>
