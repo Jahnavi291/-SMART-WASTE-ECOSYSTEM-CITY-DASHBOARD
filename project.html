@@ -2,207 +2,210 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Waste Ecosystem</title>
+<title>Smart Waste Management System</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #0b1220;
-    color: white;
+body{
+    margin:0;
+    font-family:Verdana;
+    background:#0f172a;
+    color:#e2e8f0;
 }
 
-header {
-    background: #1e293b;
-    padding: 20px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #38bdf8;
+header{
+    background:#1f2937;
+    text-align:center;
+    padding:18px;
+    font-size:24px;
+    font-weight:bold;
+    color:#60a5fa;
 }
 
-.container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
+.wrapper{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    padding:20px;
 }
 
-.card {
-    background: #111827;
-    margin: 10px;
-    padding: 20px;
-    border-radius: 12px;
-    width: 260px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+.box{
+    background:#111827;
+    margin:12px;
+    padding:18px;
+    width:250px;
+    border-radius:14px;
+    box-shadow:0 0 12px rgba(0,0,0,0.6);
 }
 
-.status {
-    font-size: 18px;
-    margin-top: 10px;
+.progress-area{
+    background:#374151;
+    height:14px;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
 }
 
-.progress {
-    height: 15px;
-    background: #374151;
-    border-radius: 10px;
-    overflow: hidden;
+.fill{
+    height:100%;
+    width:0%;
+    transition:0.7s ease-in-out;
 }
 
-.bar {
-    height: 100%;
-    width: 0%;
-    transition: 0.8s;
+.status-text{
+    margin-top:10px;
+    font-size:17px;
 }
 
-.btns {
-    text-align: center;
-    margin: 20px;
+.controls{
+    text-align:center;
+    margin:15px;
 }
 
-button {
-    padding: 10px 15px;
-    margin: 5px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
+button{
+    padding:10px 14px;
+    margin:6px;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-.wet { background: #22c55e; }
-.dry { background: #f59e0b; }
-.plastic { background: #ef4444; }
+.green{background:#22c55e;}
+.orange{background:#f59e0b;}
+.red{background:#ef4444;}
 
-.dashboard {
-    text-align: center;
-    padding: 10px;
-    font-size: 18px;
-    color: #38bdf8;
+.info{
+    text-align:center;
+    color:#38bdf8;
+    font-size:18px;
+    margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<header>♻️ SMART WASTE ECOSYSTEM – CITY DASHBOARD</header>
+<header>♻️ SMART WASTE MONITORING DASHBOARD</header>
 
-<div class="dashboard">
-Eco Points: <span id="points">0</span> |
-Prediction: <span id="predict">Initializing...</span>
+<div class="info">
+Eco Score: <span id="score">0</span> |
+Status Prediction: <span id="statusMsg">Loading...</span>
 </div>
 
-<div class="btns">
-<button class="wet" onclick="addWaste('wet')">Wet Waste</button>
-<button class="dry" onclick="addWaste('dry')">Dry Waste</button>
-<button class="plastic" onclick="addWaste('plastic')">Plastic Waste</button>
+<div class="controls">
+<button class="green" onclick="generateWaste('wet')">Wet Waste</button>
+<button class="orange" onclick="generateWaste('dry')">Dry Waste</button>
+<button class="red" onclick="generateWaste('plastic')">Plastic Waste</button>
 </div>
 
-<div class="container">
+<div class="wrapper">
 
-<div class="card">
-<h3>Bin A</h3>
-<div class="progress"><div class="bar" id="a"></div></div>
-<div class="status" id="sa">Empty</div>
+<div class="box">
+<h3>Container A</h3>
+<div class="progress-area"><div class="fill" id="binA"></div></div>
+<div class="status-text" id="textA">Empty</div>
 </div>
 
-<div class="card">
-<h3>Bin B</h3>
-<div class="progress"><div class="bar" id="b"></div></div>
-<div class="status" id="sb">Empty</div>
+<div class="box">
+<h3>Container B</h3>
+<div class="progress-area"><div class="fill" id="binB"></div></div>
+<div class="status-text" id="textB">Empty</div>
 </div>
 
-<div class="card">
-<h3>Bin C</h3>
-<div class="progress"><div class="bar" id="c"></div></div>
-<div class="status" id="sc">Empty</div>
+<div class="box">
+<h3>Container C</h3>
+<div class="progress-area"><div class="fill" id="binC"></div></div>
+<div class="status-text" id="textC">Empty</div>
 </div>
 
-<div class="card">
-<h3>AI Detection</h3>
-<div id="ai">Waiting...</div>
+<div class="box">
+<h3>AI Scanner</h3>
+<div id="aiView">Idle...</div>
 </div>
 
-<div class="card">
-<h3>Smart Routing</h3>
-<div id="route">Calculating...</div>
+<div class="box">
+<h3>Route Optimizer</h3>
+<div id="routeView">Analyzing...</div>
 </div>
 
 </div>
 
 <script>
 
-let bins = {
-    a: 0,
-    b: 0,
-    c: 0
+let capacity = {
+    binA: 0,
+    binB: 0,
+    binC: 0
 };
 
-let points = 0;
-let history = [];
+let ecoScore = 0;
+let logData = [];
 
-function addWaste(type) {
+function generateWaste(category){
 
-    let target = randomBin();
-    let add = 15 + Math.random()*10;
+    let selected = pickRandomBin();
+    let value = 10 + Math.random()*20;
 
-    bins[target] += add;
-    if(bins[target] > 100) bins[target] = 100;
+    capacity[selected] += value;
+    if(capacity[selected] > 100) capacity[selected] = 100;
 
-    history.push(bins[target]);
+    logData.push(capacity[selected]);
 
-    updateUI(target, type);
-    calculatePoints(type);
-    predict();
-    route();
+    renderUI(selected, category);
+    updateScore(category);
+    analyzeTrend();
+    optimizeRoute();
 }
 
-function randomBin() {
-    let keys = Object.keys(bins);
-    return keys[Math.floor(Math.random()*keys.length)];
+function pickRandomBin(){
+    let list = Object.keys(capacity);
+    return list[Math.floor(Math.random()*list.length)];
 }
 
-function updateUI(bin, type) {
+function renderUI(bin, category){
 
-    document.getElementById(bin).style.width = bins[bin] + "%";
+    document.getElementById(bin).style.width = capacity[bin] + "%";
 
-    let status = "Empty";
-    if(bins[bin] > 70) status = "FULL 🔴";
-    else if(bins[bin] > 40) status = "Half 🟡";
-    else status = "Low 🟢";
+    let condition = "Empty";
+    if(capacity[bin] > 70) condition = "FULL 🔴";
+    else if(capacity[bin] > 40) condition = "MID 🟡";
+    else condition = "LOW 🟢";
 
-    document.getElementById("s"+bin).innerText = status;
+    document.getElementById("text"+bin.charAt(3)).innerText = condition;
 
-    document.getElementById("ai").innerText =
-        "Detected: " + type.toUpperCase() + " waste processed";
+    document.getElementById("aiView").innerText =
+        "AI detected " + category.toUpperCase() + " waste successfully processed";
 }
 
-function calculatePoints(type) {
-    if(type === "dry") points += 10;
-    if(type === "plastic") points += 7;
-    if(type === "wet") points += 5;
+function updateScore(category){
+    if(category === "dry") ecoScore += 10;
+    else if(category === "plastic") ecoScore += 7;
+    else if(category === "wet") ecoScore += 5;
 
-    document.getElementById("points").innerText = points;
+    document.getElementById("score").innerText = ecoScore;
 }
 
-function predict() {
-    if(history.length < 3) return;
+function analyzeTrend(){
 
-    let trend = history[history.length-1] - history[history.length-3];
+    if(logData.length < 3) return;
 
-    if(trend > 25) {
-        document.getElementById("predict").innerText = "Overflow Soon ⚠️";
-    } else {
-        document.getElementById("predict").innerText = "Normal Flow ✔";
+    let diff = logData[logData.length-1] - logData[logData.length-3];
+
+    if(diff > 25){
+        document.getElementById("statusMsg").innerText = "Risk of Overflow ⚠️";
+    }else{
+        document.getElementById("statusMsg").innerText = "System Stable ✔";
     }
 }
 
-function route() {
-    let minBin = Object.keys(bins).reduce((a,b) =>
-        bins[a] < bins[b] ? a : b
+function optimizeRoute(){
+
+    let best = Object.keys(capacity).reduce((x,y)=>
+        capacity[x] < capacity[y] ? x : y
     );
 
-    document.getElementById("route").innerText =
-        "Nearest Empty Bin: " + minBin.toUpperCase();
+    document.getElementById("routeView").innerText =
+        "Suggested Pickup Bin: " + best.toUpperCase();
 }
 
 </script>
